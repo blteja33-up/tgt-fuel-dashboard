@@ -27,11 +27,11 @@ export default function DashboardClient({ groups }: { groups: GroupedPrices[] })
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-5 pb-10">
-      {/* Freight Notice */}
+      {/* Freight + Taxes Notice */}
       <div className="bg-yellow-50 border-l-4 border-[#e94560] rounded-md px-5 py-3.5 text-[13px] text-yellow-900 mb-4">
-        <strong className="text-[#e94560]">FREIGHT INCLUDED:</strong> All prices below include{" "}
-        <strong>$0.85/gal</strong> freight. These are the all-included delivered costs per gallon
-        to True Grade Transport&apos;s end consumers.
+        <strong className="text-[#e94560]">FREIGHT + TAXES INCLUDED:</strong> All prices below
+        include <strong>$0.85/gal</strong> freight + taxes. These are the all-included delivered
+        costs per gallon to True Grade Transport&apos;s end consumers.
       </div>
 
       {/* Search */}
@@ -55,7 +55,7 @@ export default function DashboardClient({ groups }: { groups: GroupedPrices[] })
         <StatCard icon={<Truck size={16} />} label="Suppliers" value={String(totalSuppliers)} />
         <StatCard
           icon={<Fuel size={16} />}
-          label="Freight"
+          label="Freight + Taxes"
           value="+$0.85"
           valueColor="text-[#e94560]"
         />

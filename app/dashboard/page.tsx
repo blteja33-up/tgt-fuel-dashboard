@@ -34,7 +34,7 @@ export default async function DashboardPage() {
           TRUE GRADE TRANSPORT
         </div>
         <div className="text-[11px] text-slate-500 mt-1">
-          All prices include $0.85/gal freight
+          All prices include $0.85/gal freight + taxes
         </div>
       </footer>
     </div>
