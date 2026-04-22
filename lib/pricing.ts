@@ -122,10 +122,77 @@ export async function getPricesForUser(userId: number, isAdmin: boolean): Promis
     a.supplier.localeCompare(b.supplier)
   );
 
-  return sorted.map((group, idx) => ({
+  const transformed = applyDisplayRules(sorted);
+
+  return transformed.map((group, idx) => ({
     ...group,
     color: SUPPLIER_COLORS[idx % SUPPLIER_COLORS.length],
   }));
+}
+
+type SupplierGroup = {
+  supplier: string;
+  dateLabel: string;
+  locations: Array<{
+    location: string;
+    prices: Array<{ grade: string; basePrice: number; allInPrice: number }>;
+  }>;
+};
+
+function applyDisplayRules(groups: SupplierGroup[]): SupplierGroup[] {
+  const result: SupplierGroup[] = [];
+
+  for (const group of groups) {
+    const supplier = group.supplier.toLowerCase();
+
+    // Rule 4: drop Sunoco Wholesale entirely
+    if (supplier.includes("sunoco") && supplier.includes("wholesale")) continue;
+
+    let locations = group.locations;
+
+    // Rule 1: Ewing — keep only "G Street"
+    if (supplier.includes("ewing")) {
+      locations = locations.filter((l) =>
+        l.location.toLowerCase().replace(/[-\s]+/g, " ").includes("g street")
+      );
+    }
+
+    // Rule 2: Holtzworth — drop Malvern + Severn
+    if (supplier.includes("holtzworth") || supplier.includes("hoelsworth")) {
+      locations = locations.filter((l) => {
+        const loc = l.location.toLowerCase();
+        return !loc.includes("malvern") && !loc.includes("severn");
+      });
+    }
+
+    // Rule 3: P&J — subtract $0.77 from base price
+    if (supplier.includes("p&j") || supplier.includes("p & j")) {
+      locations = locations.map((l) => ({
+        ...l,
+        prices: l.prices.map((p) => {
+          const newBase = p.basePrice - 0.77;
+          return {
+            grade: p.grade,
+            basePrice: newBase,
+            allInPrice: newBase + FREIGHT,
+          };
+        }),
+      }));
+    }
+
+    // Rule 5: TAC Energy — collapse all locations into single "PA" row
+    if (supplier.includes("tac")) {
+      if (locations.length > 0) {
+        locations = [{ location: "PA", prices: locations[0].prices }];
+      }
+    }
+
+    if (locations.length === 0) continue;
+
+    result.push({ ...group, locations });
+  }
+
+  return result;
 }
 
 export async function getAllLocations(): Promise<string[]> {
